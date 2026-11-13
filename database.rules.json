@@ -1,0 +1,41 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "users": {
+      ".read": "auth != null",
+      ".indexOn": ["rating"],
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['name','pid'])",
+        "name":   { ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 16" },
+        "pid":    { ".validate": "newData.isString() && newData.val().length == 6" },
+        "ava":    { ".validate": "newData.isString() && newData.val().length < 16000" },
+        "rating": { ".validate": "newData.isNumber()" },
+        "w":      { ".validate": "newData.isNumber()" },
+        "l":      { ".validate": "newData.isNumber()" }
+      }
+    },
+    "ids": {
+      "$pid": {
+        ".read": "auth != null",
+        ".write": "auth != null && !data.exists() && newData.val() === auth.uid",
+        ".validate": "newData.isString()"
+      }
+    },
+    "invites": {
+      "$to": {
+        ".read": "auth != null && auth.uid === $to",
+        "$from": {
+          ".write": "auth != null && ($from === auth.uid || $to === auth.uid)"
+        }
+      }
+    },
+    "matches": {
+      "$mid": {
+        ".read": "auth != null && (data.child('host').val() === auth.uid || data.child('guest').val() === auth.uid)",
+        ".write": "auth != null && ((!data.exists() && newData.child('host').val() === auth.uid) || data.child('host').val() === auth.uid || data.child('guest').val() === auth.uid)"
+      }
+    }
+  }
+}
